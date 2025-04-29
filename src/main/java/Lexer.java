@@ -37,9 +37,9 @@ public class Lexer {
     System.exit(1);
   }
 
-  static void outputToFile(String result) {
+  static void outputToFile(String result, String filename) {
     try {
-      FileWriter myWriter = new FileWriter("src/main/resources/hello.lex");
+      FileWriter myWriter = new FileWriter(filename);
       myWriter.write(result);
       myWriter.close();
       System.out.println("Successfully wrote to the file.");
@@ -49,13 +49,12 @@ public class Lexer {
   }
 
   public static void main(String[] args) {
-    String[] files = {"src/main/resources/prime/prime.c",
-            "src/main/resources/fizzbuzz/fizzbuzz.c",
-            "src/main/resources/99bottles/99bottles.c"};
+    String[] files = {"prime", "fizzbuzz", "99bottles"};
+
     if (1 == 1) {
       try {
           for(int i = 0; i < files.length; i++) {
-              File f = new File(files[i]);
+              File f = new File("src/main/resources/" + files[i] + "/" + files[i] + ".c");
               Scanner s = new Scanner(f);
               String source = " ";
               String result = " ";
@@ -64,7 +63,7 @@ public class Lexer {
               }
               Lexer l = new Lexer(source);
               result = l.printTokens();
-              outputToFile(result);
+              outputToFile(result, "src/main/resources/" + files[i] + "/" + files[i] + ".lex");
           }
       } catch (FileNotFoundException e) {
         error(-1, -1, "Exception: " + e.getMessage());
