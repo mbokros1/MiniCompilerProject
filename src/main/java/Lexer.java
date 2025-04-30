@@ -117,13 +117,54 @@ public class Lexer {
     line = this.line;
     pos = this.pos;
 
-    // switch statement on character for all forms of tokens with return to follow.... one example left for you
+    // switch statement on character for all forms of tokens with return to follow....
+    // one example left for you
 
     switch (this.chr) {
       case '\u0000':
         return new Token(TokenType.End_of_input, "", this.line, this.pos);
       // remaining case statements
-
+      case '*':
+        return new Token(TokenType.Op_multiply, "*", this.line, this.pos);
+      case '/':
+        div_or_comment(this.line, this.pos);
+      case '%':
+        return new Token(TokenType.Op_mod, "%", this.line, this.pos);
+      case '+':
+        return new Token(TokenType.Op_add, "+", this.line, this.pos);
+      case '-':
+        return new Token(TokenType.Op_subtract, "-", this.line, this.pos);
+        // need to separate from negation
+      case '!':
+        return new Token(TokenType.Op_not, "!", this.line, this.pos);
+        // need to separate notequal
+      case '<':
+        return new Token(TokenType.Op_less, "<", this.line, this.pos);
+        // need to separate lessequal
+      case '>':
+        return new Token(TokenType.Op_greater, ">", this.line, this.pos);
+        // need to separate greaterequal
+      case '=':
+        return new Token(TokenType.Op_assign, "=", this.line, this.pos);
+        // need to separate equal (==)
+      case '&':
+        return new Token(TokenType.Op_and, "&", this.line, this.pos);
+        // need if statement to ensure &&
+      case '|':
+        return new Token(TokenType.Op_or, "|", this.line, this.pos);
+        // need if statement to ensure ||
+      case '(':
+        return new Token(TokenType.LeftParen, "(", this.line, this.pos);
+      case ')':
+        return new Token(TokenType.RightParen, ")", this.line, this.pos);
+      case '{':
+        return new Token(TokenType.LeftBrace, "{", this.line, this.pos);
+      case '}':
+        return new Token(TokenType.RightBrace, "}", this.line, this.pos);
+      case ';':
+        return new Token(TokenType.Semicolon, ";", this.line, this.pos);
+      case ',':
+        return new Token(TokenType.Comma, ";", this.line, this.pos);
       default:
         return identifier_or_integer(line, pos);
     }
