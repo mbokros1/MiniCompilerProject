@@ -88,12 +88,27 @@ public class Lexer {
     char c = getNextChar(); // skip opening quote
     int n = (int) c;
     // code here
+    if(c == '\\'){
+      if(getNextChar() == 'n'){
+        c = '\n';
+        n = (int) c;
+      }
+    }
+    getNextChar(); // skip closing quote
     return new Token(TokenType.Integer, "" + n, line, pos);
   }
 
   Token string_lit(char start, int line, int pos) { // handle string literals
     String result = "";
     // code here
+    while(start != '\n' && start != '\u0000'){
+      start = getNextChar();
+      if(start == '"' || start == '\''){
+        return new Token(TokenType.String, result, line, pos);
+      }
+      result += getNextChar();
+      pos++;
+    }
     return new Token(TokenType.String, result, line, pos);
   }
 
@@ -133,26 +148,19 @@ public class Lexer {
       case '+':
         return new Token(TokenType.Op_add, "+", this.line, this.pos);
       case '-':
-        return new Token(TokenType.Op_subtract, "-", this.line, this.pos);
-        // need to separate from negation
+        return new Token(TokenType.Op_subtract,"-",this.line,this.pos);
       case '!':
-        return new Token(TokenType.Op_not, "!", this.line, this.pos);
-        // need to separate notequal
+        return follow('=', TokenType.Op_notequal, TokenType.Op_not, this.line, this.pos);
       case '<':
-        return new Token(TokenType.Op_less, "<", this.line, this.pos);
-        // need to separate lessequal
+        return follow('=', TokenType.Op_lessequal,TokenType.Op_less, this.line, this.pos);
       case '>':
-        return new Token(TokenType.Op_greater, ">", this.line, this.pos);
-        // need to separate greaterequal
+        return follow('=', TokenType.Op_greaterequal,TokenType.Op_greater, this.line, this.pos);
       case '=':
-        return new Token(TokenType.Op_assign, "=", this.line, this.pos);
-        // need to separate equal (==)
+        return follow('=', TokenType.Op_equal, TokenType.Op_assign, this.line, this.pos);
       case '&':
-        return new Token(TokenType.Op_and, "&", this.line, this.pos);
-        // need if statement to ensure &&
+        return follow('&', TokenType.Op_and, TokenType.End_of_input, this.line, this.pos);
       case '|':
-        return new Token(TokenType.Op_or, "|", this.line, this.pos);
-        // need if statement to ensure ||
+        return follow('|', TokenType.Op_or, TokenType.End_of_input, this.line, this.pos);
       case '(':
         return new Token(TokenType.LeftParen, "(", this.line, this.pos);
       case ')':
@@ -164,7 +172,7 @@ public class Lexer {
       case ';':
         return new Token(TokenType.Semicolon, ";", this.line, this.pos);
       case ',':
-        return new Token(TokenType.Comma, ";", this.line, this.pos);
+        return new Token(TokenType.Comma, ",", this.line, this.pos);
       default:
         return identifier_or_integer(line, pos);
     }
