@@ -137,6 +137,17 @@ public class Lexer {
     boolean is_number = true;
     String text = "";
     // code here
+    char c = getNextChar();
+    while(Character.isDigit(c) || Character.isLetter(c) || c == '_'){
+      if(!Character.isDigit(c)){
+        is_number = false;
+      }
+      text = text + c;
+      c = getNextChar();
+    }
+    if(is_number){
+      return new Token(TokenType.Integer, text, line, pos);
+    }
     return new Token(TokenType.Identifier, text, line, pos);
   }
 
