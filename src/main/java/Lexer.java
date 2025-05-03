@@ -114,30 +114,34 @@ public class Lexer {
 
   Token div_or_comment(int line, int pos) { // handle division or comments
     // code here
-    char c = getNextChar();
-    if(c == '/'){
-      while (c != '\n') {
-        c = getNextChar();
-      }
+    char next = getNextChar(); // peek ahead after '/'
+
+    if (next == '/') {// Single-line comment, skip until newline or end of input
+      while (this.chr != '\n' && this.chr != '\u0000') {
+        getNextChar();
+      } // Line ends, get the next token
       return getToken();
+    } else if (next == '*') { // Multi-line comment: skip until */
+      char prev;
+      while (true) {
+        prev = this.chr;
+        char curr = getNextChar();
+        if (prev == '*' && curr == '/') {
+          getNextChar(); // move past closing '/'
+          break;
+        }
+      } // Done skipping comment, get next token
+      return getToken();
+    } else { // Not a comment, is actually a division operator
+      return new Token(TokenType.Op_divide, "/", line, pos);
     }
-    else if(c == '*'){
-      c = getNextChar();
-      while(c != '*') {
-        c = getNextChar();
-      }
-      if(getNextChar() == '/'){
-        return getToken();
-      }
-    }
-    return new Token(TokenType.Op_divide,"/", this.line, this.pos);
   }
 
   Token identifier_or_integer(int line, int pos) { // handle identifiers and integers
     boolean is_number = true;
     String text = "";
     // code here
-    char c = getNextChar();
+    char c = this.chr;
     while(Character.isDigit(c) || Character.isLetter(c) || c == '_'){
       if(!Character.isDigit(c)){
         is_number = false;
@@ -170,17 +174,25 @@ public class Lexer {
         return new Token(TokenType.End_of_input, "", this.line, this.pos);
       // remaining case statements
       case '*':
-        return new Token(TokenType.Op_multiply, "*", this.line, this.pos);
+        Token t = new Token(TokenType.Op_multiply, "*", this.line, this.pos);
+        getNextChar();
+        return t;
       case '/':
-        div_or_comment(this.line, this.pos);
+        return div_or_comment(this.line, this.pos);
       case '%':
-        return new Token(TokenType.Op_mod, "%", this.line, this.pos);
+        t = new Token(TokenType.Op_mod, "%", this.line, this.pos);
+        getNextChar();
+        return t;
       case '+':
-        return new Token(TokenType.Op_add, "+", this.line, this.pos);
+        t = new Token(TokenType.Op_add, "+", this.line, this.pos);
+        getNextChar();
+        return t;
       case '-':
-        return new Token(TokenType.Op_subtract,"-",this.line,this.pos);
+        t = new Token(TokenType.Op_subtract,"-",this.line,this.pos);
+        getNextChar();
+        return t;
       case '!':
-        return follow('=', TokenType.Op_notequal, TokenType.Op_not, this.line, this.pos);
+      return follow('=', TokenType.Op_notequal, TokenType.Op_not, this.line, this.pos);
       case '<':
         return follow('=', TokenType.Op_lessequal,TokenType.Op_less, this.line, this.pos);
       case '>':
@@ -192,17 +204,31 @@ public class Lexer {
       case '|':
         return follow('|', TokenType.Op_or, TokenType.End_of_input, this.line, this.pos);
       case '(':
-        return new Token(TokenType.LeftParen, "(", this.line, this.pos);
+        t = new Token(TokenType.LeftParen, "(", this.line, this.pos);
+        getNextChar();
+        return t;
       case ')':
-        return new Token(TokenType.RightParen, ")", this.line, this.pos);
+        t = new Token(TokenType.RightParen, ")", this.line, this.pos);
+        getNextChar();
+        return t;
       case '{':
-        return new Token(TokenType.LeftBrace, "{", this.line, this.pos);
+        t = new Token(TokenType.LeftBrace, "{", this.line, this.pos);
+        getNextChar();
+        return t;
       case '}':
-        return new Token(TokenType.RightBrace, "}", this.line, this.pos);
+        t = new Token(TokenType.RightBrace, "}", this.line, this.pos);
+        getNextChar();
+        return t;
       case ';':
-        return new Token(TokenType.Semicolon, ";", this.line, this.pos);
+        t = new Token(TokenType.Semicolon, ";", this.line, this.pos);
+        getNextChar();
+        return t;
       case ',':
-        return new Token(TokenType.Comma, ",", this.line, this.pos);
+        t = new Token(TokenType.Comma, ",", this.line, this.pos);
+        getNextChar();
+        return t;
+      case '"':
+        return string_lit('"', this.line, this.pos);
       default:
         return identifier_or_integer(line, pos);
     }
