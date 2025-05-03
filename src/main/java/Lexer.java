@@ -49,7 +49,7 @@ public class Lexer {
   }
 
   public static void main(String[] args) {
-    String[] files = {"prime", "fizzbuzz", "99bottles", "char_compare", "array"};
+    String[] files = {"prime", "fizzbuzz", "99bottles", "char_compare"};
 
     if (1 == 1) {
       try {
@@ -106,7 +106,7 @@ public class Lexer {
       if(start == '"' || start == '\''){
         return new Token(TokenType.String, result, line, pos);
       }
-      result += getNextChar();
+      result += start;
       pos++;
     }
     return new Token(TokenType.String, result, line, pos);
@@ -228,7 +228,11 @@ public class Lexer {
         getNextChar();
         return t;
       case '"':
-        return string_lit('"', this.line, this.pos);
+        t = string_lit('"', this.line, this.pos);
+        getNextChar();
+        return t;
+      case '\'':
+        return char_lit(this.line, this.pos);
       default:
         return identifier_or_integer(line, pos);
     }
@@ -285,7 +289,7 @@ public class Lexer {
 
     @Override
     public String toString() {
-      String result = String.format("%5d  %5d %-15s", this.line, this.pos, this.tokentype);
+      String result = String.format("%5d  %5d %-20s", this.line, this.pos, this.tokentype);
       switch (this.tokentype) {
         case Integer:
           result += String.format("  %4s", value);
