@@ -148,6 +148,9 @@ public class Lexer {
     if(is_number){
       return new Token(TokenType.Integer, text, line, pos);
     }
+    if(keywords.containsKey(text)){
+      return new Token(keywords.get(text), text, this.line, this.pos);
+    }
     return new Token(TokenType.Identifier, text, line, pos);
   }
 
