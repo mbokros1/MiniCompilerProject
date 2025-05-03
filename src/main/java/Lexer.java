@@ -114,7 +114,23 @@ public class Lexer {
 
   Token div_or_comment(int line, int pos) { // handle division or comments
     // code here
-    return getToken();
+    char c = getNextChar();
+    if(c == '/'){
+      while (c != '\n') {
+        c = getNextChar();
+      }
+      return getToken();
+    }
+    else if(c == '*'){
+      c = getNextChar();
+      while(c != '*') {
+        c = getNextChar();
+      }
+      if(getNextChar() == '/'){
+        return getToken();
+      }
+    }
+    return new Token(TokenType.Op_divide,"/", this.line, this.pos);
   }
 
   Token identifier_or_integer(int line, int pos) { // handle identifiers and integers
