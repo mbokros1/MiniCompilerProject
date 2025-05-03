@@ -49,7 +49,7 @@ public class Lexer {
   }
 
   public static void main(String[] args) {
-    String[] files = {"prime", "fizzbuzz", "99bottles"};
+    String[] files = {"prime", "fizzbuzz", "99bottles", "char_compare", "array"};
 
     if (1 == 1) {
       try {
