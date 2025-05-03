@@ -289,13 +289,13 @@ public class Lexer {
 
     @Override
     public String toString() {
-      String result = String.format("%5d  %5d %-20s", this.line, this.pos, this.tokentype);
+      String result = String.format("%d  %20d %-20s", this.line, this.pos, this.tokentype);
       switch (this.tokentype) {
         case Integer:
-          result += String.format("  %4s", value);
+          result += String.format("  %s", value);
           break;
         case Identifier:
-          result += String.format(" %s", value);
+          result += String.format("  %s", value);
           break;
         case String:
           result += String.format(" \"%s\"", value);
