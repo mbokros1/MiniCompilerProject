@@ -14,6 +14,10 @@ public class Lexer {
   private char chr;
   private String s;
 
+  /**
+   * Constructor for lexer.
+   * @param source is the input.
+   */
   Lexer(String source) {
     this.line = 1;
     this.pos = 0;
@@ -28,6 +32,14 @@ public class Lexer {
 
   }
 
+
+  /**
+   * Function to flag an error in the input file, showing the line and position at which it occurred
+   * as well as a pre-defined message passed in as a parameter.
+   * @param line is the line where the error occurred.
+   * @param pos is the specific position on the line where the error occurred.
+   * @param msg is the message notifying what the error was.
+   */
   static void error(int line, int pos, String msg) {
     if (line > 0 && pos > 0) {
       System.out.printf("%s in line %d, pos %d\n", msg, line, pos);
@@ -37,6 +49,12 @@ public class Lexer {
     System.exit(1);
   }
 
+  /**
+   * A function to write the output into a new file, which will be a .lex file.
+   * @param result is the output to be written into the file.
+   * @param filename is a parameter I added so that the output file would not be hardcoded,
+   *                 and could be switched as additional input files were looped through.
+   */
   static void outputToFile(String result, String filename) {
     try {
       FileWriter myWriter = new FileWriter(filename);
@@ -73,6 +91,17 @@ public class Lexer {
     }
   }
 
+  /**
+   * A function that checks whether the next character is as expected or not.
+   * Useful for when one character can lead to two outcomes, such as '=' is assign and '==' is
+   * to check equality.
+   * @param expect is what the next character is being checked against.
+   * @param ifyes is the TokenType that returns if the next character is as expected.
+   * @param ifno is the TokenType that returns if the next character is not as expected.
+   * @param line is the line of the location that resulted in this function being called.
+   * @param pos is the position within the line at which this function was called.
+   * @return a TokenType, either the ifyes or ifno.
+   */
   Token follow(char expect, TokenType ifyes, TokenType ifno, int line, int pos) {
     if (getNextChar() == expect) {
       getNextChar();
@@ -84,6 +113,12 @@ public class Lexer {
     return new Token(ifno, "", line, pos);
   }
 
+  /**
+   * Function to handle character literals, indicated by an opening '.
+   * @param line is the line in which this function was called.
+   * @param pos is the position of the character where this function was called.
+   * @return is a token with the unicode value of the char enclosed within two 's.
+   */
   Token char_lit(int line, int pos) { // handle character literals
     char c = getNextChar(); // skip opening quote
     int n = (int) c;
@@ -98,6 +133,13 @@ public class Lexer {
     return new Token(TokenType.Integer, "" + n, line, pos);
   }
 
+  /**
+   * Function to handle String literals, indicated by an introductory ".
+   * @param start is the first character in the String.
+   * @param line is the line at which this function was called.
+   * @param pos is the position of the character that resulted in this function being called.
+   * @return is a token with the string as its value.
+   */
   Token string_lit(char start, int line, int pos) { // handle string literals
     String result = "";
     // code here
@@ -112,6 +154,13 @@ public class Lexer {
     return new Token(TokenType.String, result, line, pos);
   }
 
+  /**
+   * A function that can tell whether a / indicates division or a comment.
+   * @param line is the line at which this function was called.
+   * @param pos is the position of the character that resulted in this function being called.
+   * @return either getToken() if the / is a comment, skipping the comment, or a token of the
+   * TokenType Op_divide.
+   */
   Token div_or_comment(int line, int pos) { // handle division or comments
     // code here
     char next = getNextChar(); // peek ahead after '/'
@@ -137,6 +186,12 @@ public class Lexer {
     }
   }
 
+  /**
+   * A function to tell whether the characters which follow are an identifier or integer (or keyword).
+   * @param line is the line at which this function was called.
+   * @param pos is the position at which this function was called.
+   * @return a token that is either an integer, identifier, or keyword.
+   */
   Token identifier_or_integer(int line, int pos) { // handle identifiers and integers
     boolean is_number = true;
     String text = "";
@@ -158,6 +213,10 @@ public class Lexer {
     return new Token(TokenType.Identifier, text, line, pos);
   }
 
+  /**
+   * Iterates through the text of the input file determining which parts correspond to which tokens.
+   * @return various types of tokens depending on the input. See other functions in this file.
+   */
   Token getToken() {
     int line, pos;
     while (Character.isWhitespace(this.chr)) {
@@ -238,6 +297,10 @@ public class Lexer {
     }
   }
 
+  /**
+   * Finds the next non-whitespace character in the input file and returns it.
+   * @return the next non-whitespace character.
+   */
   char getNextChar() {
     this.pos++;
     this.position++;
@@ -253,6 +316,10 @@ public class Lexer {
     return this.chr;
   }
 
+  /**
+   * Prints the line, position, and tokentype to the console.
+   * @return the output printed to the console as a String.
+   */
   String printTokens() {
     Token t;
     StringBuilder sb = new StringBuilder();
@@ -266,6 +333,9 @@ public class Lexer {
     return sb.toString();
   }
 
+  /**
+   * Enumeration of the different possible types of tokens.
+   */
   static enum TokenType {
     End_of_input, Op_multiply, Op_divide, Op_mod, Op_add, Op_subtract,
     Op_negate, Op_not, Op_less, Op_lessequal, Op_greater, Op_greaterequal,
@@ -274,12 +344,23 @@ public class Lexer {
     LeftBrace, RightBrace, Semicolon, Comma, Identifier, Integer, String
   }
 
+  /**
+   *
+   */
   static class Token {
     public TokenType tokentype;
     public String value;
     public int line;
     public int pos;
 
+    /**
+     * Constructor for token.
+     * @param token is the TokenType.
+     * @param value is usually the set of characters that correspond to the token, but if this is from
+     *              a char literal then it is the corresponding unicode.
+     * @param line the line at which this token occurs.
+     * @param pos the position of the beginning of this token in the line.
+     */
     Token(TokenType token, String value, int line, int pos) {
       this.tokentype = token;
       this.value = value;
@@ -287,6 +368,9 @@ public class Lexer {
       this.pos = pos;
     }
 
+    /**
+     * @return the information about a token in the specific format for the .lex files.
+     */
     @Override
     public String toString() {
       String result = String.format("%d  %20d %-20s", this.line, this.pos, this.tokentype);
