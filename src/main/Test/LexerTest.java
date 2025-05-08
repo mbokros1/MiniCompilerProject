@@ -2,12 +2,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LexerTest {
 
-  @org.junit.jupiter.api.Test
-  void error() {
-  }
+  Lexer testLexer;
 
   @org.junit.jupiter.api.Test
   void follow() {
+    testLexer = new Lexer("==");
+    Lexer.Token t =  testLexer.follow('=', Lexer.TokenType.Op_equal,Lexer.TokenType.Op_assign,1,1);
+    assertEquals(Lexer.TokenType.Op_equal, t.tokentype);
   }
 
   @org.junit.jupiter.api.Test
