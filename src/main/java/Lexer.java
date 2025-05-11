@@ -28,7 +28,8 @@ public class Lexer {
     this.keywords.put("else", TokenType.Keyword_else);
     this.keywords.put("print", TokenType.Keyword_print);
     this.keywords.put("putc", TokenType.Keyword_putc);
-    this.keywords.put("while", TokenType.Keyword_while);
+    this.keywords.put("while", TokenType.Keyword_while);// These are all of the Keyword tokentypes, can check against
+    // this Hashmap to see if a string matches any of them
 
   }
 
@@ -59,9 +60,10 @@ public class Lexer {
     try {
       FileWriter myWriter = new FileWriter("src/main/resources/" +
               filename.substring(0,filename.lastIndexOf('.')) + "/" + filename);
+      // If we don't include the path above it puts the output in the project directory but outside of src
       myWriter.write(result);
       myWriter.close();
-      System.out.println("Successfully wrote to the file: " + filename);
+      System.out.println("Successfully wrote to the file.");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -71,7 +73,9 @@ public class Lexer {
 
     if (1 == 1) {
       File folder = new File("src/main/resources/");
-      processDirectory(folder);
+      processDirectory(folder);// Moved the processing logic to the processDirectory function.
+      // This way we can process folders and files recursively.
+      // A possible alternative would be to have one input folder and only search through files in that location.
     } else {
       error(-1, -1, "No args");
     }
@@ -89,7 +93,7 @@ public class Lexer {
         processDirectory(file);
       }
       else{
-        try {
+        try {// Processing logic from main()
           String fileName = file.getName().toLowerCase();
           if(!(fileName.endsWith(".lex") || fileName.endsWith(".par"))) {
             Scanner s = new Scanner(file);
@@ -101,6 +105,7 @@ public class Lexer {
             Lexer l = new Lexer(source);
             result = l.printTokens();
             String newFname = fileName.substring(0,fileName.lastIndexOf('.')) + ".lex";
+            // Removes previous file extension and adds ".lex" instead to use for output file.
             outputToFile(result, newFname);
           }
       } catch (FileNotFoundException e) {
@@ -125,6 +130,9 @@ public class Lexer {
   Token follow(char expect, TokenType ifyes, TokenType ifno, int line, int pos) {
     if (getNextChar() == expect) {
       getNextChar();
+      // All of the ifyes cases are 2 char combinations, all of the ifno cases are 1 char.
+      // This way the getNextChar() in the if statement suffices for the ifno cases
+      // and the ifyes cases get the extra getNextChar() to avoid an processing the 2nd char separatley.
       return new Token(ifyes, "", line, pos);
     }
     if (ifno == TokenType.End_of_input) {
@@ -143,7 +151,8 @@ public class Lexer {
     char c = getNextChar(); // skip opening quote
     int n = (int) c;
     // code here
-    if(c == '\\'){
+    if(c == '\\'){// Handles the case of escape characters, only using '/n' in the input files.
+      // Otherwise would have else if(getNextChar() == 't'), etc., or a switch statement.
       if(getNextChar() == 'n'){
         c = '\n';
         n = (int) c;
@@ -163,12 +172,12 @@ public class Lexer {
   Token string_lit(char start, int line, int pos) { // handle string literals
     String result = "";
     // code here
-    while(start != '\n' && start != '\u0000'){
+    while(start != '\n' && start != '\u0000'){// Making sure that the String is in a valid format.
       start = getNextChar();
-      if(start == '"' || start == '\''){
+      if(start == '"' || start == '\''){// Detect the end of a string.
         return new Token(TokenType.String, result, line, pos);
       }
-      result += start;
+      result += start;// Add getNextChar() to String.
     }
     return new Token(TokenType.String, result, line, pos);
   }
@@ -187,7 +196,7 @@ public class Lexer {
     if (next == '/') {// Single-line comment, skip until newline or end of input
       while (this.chr != '\n' && this.chr != '\u0000') {
         getNextChar();
-      } // Line ends, get the next token
+      } // Line ends, get the next token.
       return getToken();
     } else if (next == '*') { // Multi-line comment: skip until */
       char prev;
@@ -216,8 +225,8 @@ public class Lexer {
     String text = "";
     // code here
     char c = this.chr;
-    while(Character.isDigit(c) || Character.isLetter(c) || c == '_'){
-      if(!Character.isDigit(c)){
+    while(Character.isDigit(c) || Character.isLetter(c) || c == '_'){// valid parts of identifiers
+      if(!Character.isDigit(c)){// If any of the characters are not a digit, it cannot be an integer.
         is_number = false;
       }
       text = text + c;
@@ -226,10 +235,11 @@ public class Lexer {
     if(is_number){
       return new Token(TokenType.Integer, text, line, pos);
     }
-    if(keywords.containsKey(text)){
+    if(keywords.containsKey(text)){// Check against HashMap if text matches any of the possible Keywords.
       return new Token(keywords.get(text), text, line, pos);
     }
     return new Token(TokenType.Identifier, text, line, pos);
+    // If not a number and not a Keyword, then it must be an identifier.
   }
 
   /**
@@ -284,6 +294,7 @@ public class Lexer {
       case '(':
         t = new Token(TokenType.LeftParen, "(", this.line, this.pos);
         getNextChar();
+        // follow function does this, got stuck in an infinite loop before I remembered getNextChar() here.
         return t;
       case ')':
         t = new Token(TokenType.RightParen, ")", this.line, this.pos);
