@@ -57,37 +57,57 @@ public class Lexer {
    */
   static void outputToFile(String result, String filename) {
     try {
-      FileWriter myWriter = new FileWriter(filename);
+      FileWriter myWriter = new FileWriter("src/main/resources/" +
+              filename.substring(0,filename.lastIndexOf('.')) + "/" + filename);
       myWriter.write(result);
       myWriter.close();
-      System.out.println("Successfully wrote to the file.");
+      System.out.println("Successfully wrote to the file: " + filename);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   public static void main(String[] args) {
-    String[] files = {"prime", "fizzbuzz", "99bottles", "char_compare", "fibonacci"};
 
     if (1 == 1) {
-      try {
-          for(int i = 0; i < files.length; i++) {
-              File f = new File("src/main/resources/" + files[i] + "/" + files[i] + ".c");
-              Scanner s = new Scanner(f);
-              String source = " ";
-              String result = " ";
-              while (s.hasNext()) {
-                  source += s.nextLine() + "\n";
-              }
-              Lexer l = new Lexer(source);
-              result = l.printTokens();
-              outputToFile(result, "src/main/resources/" + files[i] + "/" + files[i] + ".lex");
+      File folder = new File("src/main/resources/");
+      processDirectory(folder);
+    } else {
+      error(-1, -1, "No args");
+    }
+  }
+
+  /**
+   *
+   * @param fName
+   */
+  static void processDirectory(File fName){
+    File[] listOfFiles = fName.listFiles();
+
+    for(File file : listOfFiles) {
+      if(file.isDirectory()) {
+        processDirectory(file);
+      }
+      else{
+        try {
+          String fileName = file.getName().toLowerCase();
+          if(!(fileName.endsWith(".lex") || fileName.endsWith(".par"))) {
+            Scanner s = new Scanner(file);
+            String source = " ";
+            String result = " ";
+            while (s.hasNext()) {
+              source += s.nextLine() + "\n";
+            }
+            Lexer l = new Lexer(source);
+            result = l.printTokens();
+            String newFname = fileName.substring(0,fileName.lastIndexOf('.')) + ".lex";
+            outputToFile(result, newFname);
           }
       } catch (FileNotFoundException e) {
         error(-1, -1, "Exception: " + e.getMessage());
       }
-    } else {
-      error(-1, -1, "No args");
+
+      }
     }
   }
 
@@ -149,7 +169,6 @@ public class Lexer {
         return new Token(TokenType.String, result, line, pos);
       }
       result += start;
-      pos++;
     }
     return new Token(TokenType.String, result, line, pos);
   }
@@ -208,7 +227,7 @@ public class Lexer {
       return new Token(TokenType.Integer, text, line, pos);
     }
     if(keywords.containsKey(text)){
-      return new Token(keywords.get(text), text, this.line, this.pos);
+      return new Token(keywords.get(text), text, line, pos);
     }
     return new Token(TokenType.Identifier, text, line, pos);
   }
