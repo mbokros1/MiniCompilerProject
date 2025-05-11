@@ -14,3 +14,9 @@ Installing/Executing Program
 * Open project in IntelliJ IDEA
 * Set JDK to 23
 * Run main() in Lexer.java
+
+## Design
+![UML Diagram of Lexer](UML_Diagram.png)
+
+## Unit Testing
+![Screenshot of unit testing run with coverage of Lexer methods](UnitTestingCoverage.png)
